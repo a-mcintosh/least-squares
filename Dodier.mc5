@@ -1,0 +1,12 @@
+/* Contributed, with edits, by Robert Dodier <robert.dodier@gmail.com> */
+declare (nounify(sum), linear);
+r[i] := yhat[i] - y[i];
+SSE: sum (r[i]^2, i, 1, n);
+%, yhat[i] = m*(x[i])+b;
+diff (%o4, m);
+diff (%o4, b);
+expand (%o5);
+expand (%o6);
+linsolve ([%o7, %o8], [b, m]);
+subst (['sum(x[i], i, 1, n) = SX, 'sum(y[i], i, 1, n) = SY, 'sum(x[i]*y[i], i, 1, n) = SXY, 'sum(x[i]^2, i, 1, n) = SX2], %o9);
+
