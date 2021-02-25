@@ -3,12 +3,13 @@
 /* The well known formula for residuals needs 2 passes through the data.             -- */
 /* This develops the 1 pass formulation for the residuals.                           -- */
 /* ------------------------------------------------------------------------------------ */
+display2d:false;
 r_1: sum((X0[i]-Xhat)^2,i,1,n)/(n-1);
 r_2: expand(r_1);
-/* ------------------------------------------------------------------------------------ */
-/* What statement sequence tranforms r_2 to r_3, pulling something out of the summation.*/
-/* ------------------------------------------------------------------------------------ */
-r_3: (sum(X0[i]^2,i,1,n) - sum(2*Xhat*X0[i],i,1,n) + sum(Xhat^2,i,1,n))/(n-1);
+declare(sum,linear);
+r_3:''r_2;
 r_4: subst(['sum(X0[i],i,1,n)=SX,'sum(X0[j],j,1,n)=SX,'sum(X0[i]^2,i,1,n)=SX2,Xhat=SX/n],r_3);
 s[xx]: factor(r_4);
+display2d:true;
+s[xx];
 
