@@ -5,6 +5,7 @@
 /* 1)Translate the line to pass through the origin, and                              -- */
 /* 2) rotate the line so that it is parallel with the X axis.                        -- */
 /* ------------------------------------------------------------------------------------ */
+maxima
 T1: matrix([1,0,tx],[0,1,ty],[0,0,1]);
 R1: matrix([cos(theta),-sin(theta),0],[sin(theta),cos(theta),0],[0,0,1]);
 U: [x0[i],y0[i],1];
@@ -12,10 +13,11 @@ O: factor(expand(R1 . T1 . U)), tx=0, ty=-b, theta=-atan(m);
 
 /* The vertical distance after the transform is the orthogonal distance before.         */
 r[i] := [0,1,0] . O;
-SSE: sum (r[i]^2, i, 1, n);
+declare(sum,linear);
+declare (nounify(sum), linear);
+SSE: factor(expand(sum (r[i]^2, i, 1, n)));
 
 /* Contributed, with adaptation, by Robert Dodier <robert.dodier@gmail.com>             */
-declare (nounify(sum), linear);
 %o8: diff (SSE, m);
 %o9: diff (SSE, b);
 %o10: expand (%o8);
@@ -27,8 +29,7 @@ simul: subst( ['sum(x0[i],i,1,n)=SX, 'sum(x0[i]*y0[i], i, 1, n) = SXY, 'sum(x0[i
 /* I thought %o13 would be the final solution. */
 /* I don't know how the next 4 statements fix things */
   
-simul2: [num(rhs(part(%o13,1))), num(rhs(part(%o13,2)))];
-is(equal(denom(rhs(part(%o13,1))),denom(rhs(part(%o13,1)))));
-D0: denom(rhs(part(%o13,1)));
-fit: linsolve (simul2/D0, [m, b]);
+simul3: [0=num(part(simul,1)), 0=num(part(simul,2))];
+simul4: [part(eliminate(simul3, [m]),1),part(eliminate(simul3, [b]),1)];
+fit: linsolve(simul4,[m,b]);
 

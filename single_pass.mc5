@@ -12,4 +12,16 @@ r_4: subst(['sum(X0[i],i,1,n)=SX,'sum(X0[j],j,1,n)=SX,'sum(X0[i]^2,i,1,n)=SX2,Xh
 s[xx]: factor(r_4);
 display2d:true;
 s[xx];
+/* ------------------------------------------------------------------------------------ */
+/* Prepare some sums used in the Deming orthogonal treatment.                        -- */
+/* ------------------------------------------------------------------------------------ */
+s[yy]: subst(['SX=SY, 'SX2=SY2], s[xx]);
+sxy_1: expand(sum((X0[i]-Xhat)*(Y0[i]-Yhat),i,1,n)/(n-1));
+sxy_2: subst([\
+  'Xhat=SX/n, 'Yhat=SY/n,\
+  'sum(X0[i],i,1,n)=SX, 'sum(Y0[i],i,1,n)=SY, \
+  'sum(X0[i]*Y0[i],i,1,n)=SXY\
+  ],sxy_1);
+sxy_3: factor(expand(n*(n-1)^2*sxy_2));
+s[xy]: sxy_3 / (n*(n-1)^2);
 
