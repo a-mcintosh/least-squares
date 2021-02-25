@@ -1,0 +1,14 @@
+/* ------------------------------------------------------------------------------------ */
+/* 2021-02-24 Aubrey McIntosh, PhD                                                   -- */
+/* https://en.wikipedia.org/wiki/Deming_regression                                   -- *
+/* ------------------------------------------------------------------------------------ */
+s[yy]: subst(['SX=SY, 'SX2=SY2], sxx);
+sxy_1: expand(sum((X0[i]-Xhat)*(Y0[i]-Yhat),i,1,n)/(n-1));
+sxy_2: subst([\
+  'Xhat=SX/n, 'Yhat=SY/n,\
+  'sum(X0[i],i,1,n)=SX, 'sum(Y0[i],i,1,n)=SY, \
+  'sum(X0[i]*Y0[i],i,1,n)=SXY\
+  ],sxy_1);
+sxy_3: factor(expand(n*(n-1)^2*sxy_2));
+s[xy]: sxy_3 / (n*(n-1)^2);
+

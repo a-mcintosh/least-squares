@@ -1,0 +1,34 @@
+/* ------------------------------------------------------------------------------------ */
+/* 2021-02-24 Aubrey McIntosh, PhD                                                   -- */
+/* Derive the equations for orthogonal linear least sum of squares                   -- */
+/* I.e., minimize the sum of perpendicular distances between data point and line.    -- */
+/* 1)Translate the line to pass through the origin, and                              -- */
+/* 2) rotate the line so that it is parallel with the X axis.                        -- */
+/* ------------------------------------------------------------------------------------ */
+T1: matrix([1,0,tx],[0,1,ty],[0,0,1]);
+R1: matrix([cos(theta),-sin(theta),0],[sin(theta),cos(theta),0],[0,0,1]);
+U: [x0[i],y0[i],1];
+O: factor(expand(R1 . T1 . U)), tx=0, ty=-b, theta=-atan(m);
+
+/* The vertical distance after the transform is the orthogonal distance before.         */
+r[i] := [0,1,0] . O;
+SSE: sum (r[i]^2, i, 1, n);
+
+/* Contributed, with adaptation, by Robert Dodier <robert.dodier@gmail.com>             */
+declare (nounify(sum), linear);
+%o8: diff (SSE, m);
+%o9: diff (SSE, b);
+%o10: expand (%o8);
+%o11: expand (%o9);
+%o12: factor(expand([%o10,%o11]));
+simul: subst( ['sum(x0[i],i,1,n)=SX, 'sum(x0[i]*y0[i], i, 1, n) = SXY, 'sum(x0[i]^2,i,1,n)=SX2, 'sum(y0[i], i, 1, n) = SY, 'n*SX2-SX^2=D, 'sum(y0[i]^2,i,1,n)=SY2],%o12);
+%o13: linsolve (simul, [m, b]);
+
+/* I thought %o13 would be the final solution. */
+/* I don't know how the next 4 statements fix things */
+  
+simul2: [num(rhs(part(%o13,1))), num(rhs(part(%o13,2)))];
+is(equal(denom(rhs(part(%o13,1))),denom(rhs(part(%o13,1)))));
+D0: denom(rhs(part(%o13,1)));
+fit: linsolve (simul2/D0, [m, b]);
+
