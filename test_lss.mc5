@@ -1,4 +1,6 @@
 /* ------------------------------------------------------------------------------------ */
+/* define fit:, possibly from single_pass.mc5 & Dodier.mc5 */
+/* FEV is a well known data set */
 /* ------------------------------------------------------------------------------------ */
 lab_x: [-1,0,1,2];
 m0: 3;
@@ -7,11 +9,101 @@ lab_y: m0*lab_x+b0;
 
 lab_xe: lab_x + [0,0,0.1,0];
 lab_ye: lab_y + [0,0.1,-0.1,0];
-
-fit, n=4,\
+n=195;
+fit, n=195,\
   SXY= sum(lab_xe[i]*lab_ye[i],i,1,n),\
   SX= sum(lab_xe[i],i,1,n),\
   SY= sum(lab_ye[i],i,1,n),\
   SX2= sum(lab_xe[i]^2,i,1,n),\
   SY2= sum(lab_ye[i]^2,i,1,n);
+
+
+%o91, b = 4.954038179148312, m = 2.944689182574645, tx=0, ty=-b, theta=-atan(m);
+, m = 2.944689182574645
+
+trans: R1 . T1, tx=0,\
+ ty = -0.186140468865864-0.005565091697864733 -1.663810443495499E-4,\
+ theta=-atan(0.2296764)-atan(0.0178892)-atan(0.0013867)-atan(1.0749217E-4);
+prepped: trans . lv, tx=0,\
+ ty = -0.186140468865864-0.005565091697864733 -1.663810443495499E-4,\
+ theta=-atan(0.2296764318630687)-atan(0.01788924133784578)-atan(0.00138672592938435)-atan(1.074921725055013E-4);
+lab_xe: prepped[1];
+lab_ye: prepped[2];
+fit, n=195,\
+  SXY= sum(lab_xe[i]*lab_ye[i],i,1,n),\
+  SX= sum(lab_xe[i],i,1,n),\
+  SY= sum(lab_ye[i],i,1,n),\
+  SX2= sum(lab_xe[i]^2,i,1,n),\
+  SY2= sum(lab_ye[i]^2,i,1,n);
+vetted: invert(trans) . [prepped[1],0,1];
+
+/*
+(%o196)        [b = 0.1988007404226288, m = 0.01788924133784578]
+(%o200)       [b = 0.1870491386234632, m = 0.001386725929384352]
+(%o204)        [b = 0.186140468865864, m = 1.074921725061477E-4]
+(%o208)      [b = 0.005565091697864733, m = 1.074921725055007E-4]
+(%o212)      [b = 1.663810443495499E-4, m = 1.074921725055013E-4]
+(%o216)     [b = - 6.505948221479205E-5, m = 8.332262998290005E-6]
+ */
+
+plot2d ([\
+  [discrete,lv[1],lv[2]],\
+  [discrete,prepped[1],prepped[2]],\
+  [discrete,prepped[1],0*prepped[2]],\
+  [discrete,part(vetted[1],1),part(vetted[2],1)]],\
+  [style,points,points, points,points],\
+  [point_type,diamond, diamond, asterisk,circle], [color,blue,red,orange,green],\
+  [xlabel, "years"], [ylabel, "liters"],\
+  [title, "Boys, forced lung vol vs age"],\
+  [gnuplot_preamble, "set key top left"],\
+  [legend, "original", "rotated", "projected", "Oh my!"]);
+  
+/* ------------------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------------------ */
+ageX: [5,6,7,8,9,10];
+ageY: [4.98,5.916,6.816,7.8200,8.791, 9.757];
+fit, n=6,\
+  SXY= sum(ageX[i]*ageY[i],i,1,n),\
+  SX= sum(ageX[i],i,1,n),\
+  SY= sum(ageY[i],i,1,n),\
+  SX2= sum(ageX[i]^2,i,1,n),\
+  SY2= sum(ageY[i]^2,i,1,n);
+ [b = 0.1650952380952471, m = 0.9575428571428565]
+ 
+(%i289) [1,[5,6,7,8,9,10]] . [0.1650952380952471,  0.9575428571428565];
+(%o289) [4.95280952380953, 5.910352380952387, 6.867895238095243, 
+                       7.825438095238099, 8.782980952380957, 9.740523809523813]
+S1: matrix([0,1,0], [0.9575428571428565,0,0.1650952380952471],[0,0,1]);
+
+S1 . [x,y,1]= [x,mx+b,1];
+S1 . [[5,6,7,8,9,10],y,1];
+
+
+(%i320) S1 . [[5,6,7,8,9,10],frodo,1];
+(%o320) matrix([[5, 6, 7, 8, 9, 10]], [[4.95280952380953, 5.910352380952387, 
+6.867895238095243, 7.825438095238099, 8.782980952380957, 9.740523809523813]], 
+[[1, 1, 1, 1, 1, 1]])
+
+
+
+vetted2: invert(trans) . invert(S1) . [0,prepped[1],1];
+plot2d ([\
+    [discrete,lv[1],lv[2]],\
+    [discrete,prepped[1],prepped[2]],\
+    [discrete,prepped[1],0*prepped[2]],\
+    [discrete,part(vetted2[1],1),part(vetted2[2],1)],\
+    0.250*l+0.1918,\
+    [discrete,[-0.75],[0]]\
+  ],\
+  [l,-1,11],\
+  [style,points,points, points,points,lines],\
+  [point_type,diamond, diamond, asterisk,circle,nabla],
+  [color,blue,red,orange,green,black,cyan],\
+  [xlabel, "years"], [ylabel, "liters"],\
+  [title, "Forced Expiry Volume (FEV), Boys, lung vol vs age"],\
+  [gnuplot_preamble, "set key top left"],\
+  [legend, "original", "rotated", "projected",\
+   "Oh my!", "liter=0.25year+0.192","280 days"]);
+  
+
 

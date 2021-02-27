@@ -9,9 +9,8 @@ r_2: expand(r_1);
 declare(sum,linear);
 r_3:''r_2;
 r_4: subst(['sum(X0[i],i,1,n)=SX,'sum(X0[j],j,1,n)=SX,'sum(X0[i]^2,i,1,n)=SX2,Xhat=SX/n],r_3);
-s[xx]: factor(r_4);
 display2d:true;
-s[xx];
+s[xx]: factor(r_4);
 /* ------------------------------------------------------------------------------------ */
 /* Prepare some sums used in the Deming orthogonal treatment.                        -- */
 /* ------------------------------------------------------------------------------------ */
